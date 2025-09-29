@@ -18,10 +18,4 @@ public class UserResponse {
   @Schema(description = "사용자 이름", example = "재연")
   private String name;
 
-  @Schema(description = "사용자 언어", example = "KO")
-  private String language;
-
-  @Schema(description = "사용자 소개", example = "안녕하세요, 재연입니다.")
-  private String introduction;
-
 }

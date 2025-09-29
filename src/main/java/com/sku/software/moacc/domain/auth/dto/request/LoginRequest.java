@@ -17,7 +17,7 @@ public class LoginRequest {
 
   @NotBlank(message = "사용자 아이디 항목은 필수입니다.")
   @Email(message = "유효한 이메일 형식이 아닙니다.")
-  @Schema(description = "사용자 아이디", example = "user123@gmail.com")
+  @Schema(description = "사용자 아이디", example = "jaeyeon20@gmail.com")
   private String username;
 
   @NotBlank(message = "비밀번호 항목은 필수입니다.")

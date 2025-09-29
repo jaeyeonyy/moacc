@@ -32,15 +32,6 @@ public class User extends BaseTimeEntity {
   @Column(nullable = false)
   private String name;
 
-  @Enumerated(EnumType.STRING)
-  private Language language;
-
-  private String introduction;
-
-  @Builder.Default
-  @Column(nullable = false)
-  private Integer reviewCount = 0;
-
   @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
   private Role authRole;

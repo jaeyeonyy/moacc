@@ -12,8 +12,6 @@ public class UserMapper {
         .userId(user.getUserId())
         .username(user.getUsername())
         .name(user.getName())
-        .language(user.getLanguage().getDisplayName())
-        .introduction(user.getIntroduction())
         .build();
   }
 

@@ -1,6 +1,5 @@
 package com.sku.software.moacc.domain.user.controller;
 
-import com.sku.software.moacc.domain.user.dto.request.LanguageUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.NameUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.PasswordUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.SignUpRequest;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @Tag(name = "User", description = "User 관리 API")
 @Slf4j
 public class UserController {
@@ -42,16 +41,6 @@ public class UserController {
       @RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest) {
     userService.changePassword(userDetails.getUser().getUserId(), passwordUpdateRequest);
     return ResponseEntity.ok(BaseResponse.success("비밀번호가 변경되었습니다.", null));
-  }
-
-  @Operation(summary = "언어 변경 API", description = "사용자 언어 변경을 위한 API")
-  @PatchMapping("/language")
-  public ResponseEntity<BaseResponse<UserResponse>> changeLanguage(
-      @AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestBody LanguageUpdateRequest newLanguage) {
-    UserResponse response = userService.changeLanguage(userDetails.getUser().getUserId(),
-        newLanguage);
-    return ResponseEntity.ok(BaseResponse.success("언어가 변경되었습니다.", response));
   }
 
 

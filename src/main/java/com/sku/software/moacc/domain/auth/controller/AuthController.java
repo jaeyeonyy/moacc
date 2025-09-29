@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auths")
+@RequestMapping("/api/auths")
 @Tag(name = "Auth", description = "Auth 관리 API")
 public class AuthController {
 

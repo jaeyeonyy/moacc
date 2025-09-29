@@ -1,12 +1,10 @@
 package com.sku.software.moacc.domain.user.service;
 
-import com.sku.software.moacc.domain.user.dto.request.LanguageUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.NameUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.PasswordUpdateRequest;
 import com.sku.software.moacc.domain.user.dto.request.SignUpRequest;
 import com.sku.software.moacc.domain.user.dto.response.UserResponse;
 import com.sku.software.moacc.domain.user.entity.User;
-import com.sku.software.moacc.domain.user.enums.Language;
 import com.sku.software.moacc.domain.user.enums.Role;
 import com.sku.software.moacc.domain.user.exception.UserErrorCode;
 import com.sku.software.moacc.domain.user.mapper.UserMapper;
@@ -53,8 +51,6 @@ public class UserService {
         .username(request.getUsername())
         .password(encodedPassword)
         .name(request.getName())
-        .language(request.getLanguage())
-        .introduction(request.getIntroduction())
         .authRole(Role.USER)
         .build();
 
@@ -96,29 +92,6 @@ public class UserService {
 
   }
 
-  /**
-   * 사용자의 언어 설정을 변경하는 서비스 메서드.
-   * <p>
-   * 주어진 사용자 ID에 해당하는 사용자를 데이터베이스에서 조회한 후, {@link LanguageUpdateRequest} 객체로 전달된 새로운 언어로 사용자 정보를
-   * 갱신한다.
-   * </p>
-   *
-   * @param userId      변경할 대상 사용자의 고유 ID
-   * @param newLanguage 사용자의 새로운 언어 설정을 담고 있는 요청 DTO
-   * @return 언어 변경 후의 {@link UserResponse} 객체
-   * @throws CustomException {@link UserErrorCode#USER_NOT_FOUND} – 사용자를 찾을 수 없는 경우 발생
-   */
-  @Transactional
-  public UserResponse changeLanguage(Long userId, LanguageUpdateRequest newLanguage) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-    log.info("[서비스] 언어 변경 시도: username = {}", user.getUsername());
-
-    // 언어 변경
-    user.setLanguage(Language.valueOf(newLanguage.getNewLanguage()));
-    log.info("[서비스] 언어 변경 성공: username = {}, newLanguage = {}", user.getUsername(), newLanguage);
-    return userMapper.toUserResponse(user);
-  }
 
   /**
    * 사용자의 이름을 변경하는 서비스 메서드.

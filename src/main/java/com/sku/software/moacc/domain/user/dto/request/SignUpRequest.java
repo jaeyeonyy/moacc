@@ -1,6 +1,5 @@
 package com.sku.software.moacc.domain.user.dto.request;
 
-import com.sku.software.moacc.domain.user.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,12 +26,5 @@ public class SignUpRequest {
   @NotBlank(message = "사용자 이름 항목은 필수입니다.")
   @Schema(description = "사용자 이름", example = "재연")
   private String name;
-
-  @Schema(description = "사용자 언어", example = "KO")
-  private Language language;
-
-  @Schema(description = "사용자 소개", example = "안녕하세요, 재연입니다.")
-  private String introduction;
-
 
 }
