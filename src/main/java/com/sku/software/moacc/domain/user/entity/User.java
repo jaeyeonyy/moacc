@@ -30,7 +30,7 @@ public class User extends BaseTimeEntity {
   private String password;
 
   @Column(nullable = false)
-  private String knickname; // 닉네임
+  private String nickname; // 닉네임
 
   @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
