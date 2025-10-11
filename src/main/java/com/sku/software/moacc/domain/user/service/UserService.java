@@ -38,7 +38,7 @@ public class UserService {
   @Transactional
   public UserResponse signUp(SignUpRequest request) {
     log.info("[서비스] 회원가입 시도: username = {}", request.getUsername());
-    if (userRepository.existsByUsername(request.getUsername())) {
+    if (userRepository.existsByEmail(request.getUsername())) {
       log.warn("[서비스] 이미 존재하는 사용자: username = {}", request.getUsername());
       throw new CustomException(UserErrorCode.USERNAME_ALREADY_EXISTS);
     }
