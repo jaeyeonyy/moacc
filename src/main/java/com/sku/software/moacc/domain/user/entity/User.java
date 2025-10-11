@@ -20,17 +20,17 @@ public class User extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long userId;
+  private Long id;
 
   @Column(nullable = false, unique = true)
-  private String username; // 이메일
+  private String email; // 이메일
 
   @JsonIgnore
   @Column(nullable = false)
   private String password;
 
   @Column(nullable = false)
-  private String name;
+  private String knickname; // 닉네임
 
   @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
