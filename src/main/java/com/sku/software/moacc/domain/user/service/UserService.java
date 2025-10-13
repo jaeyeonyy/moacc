@@ -10,6 +10,7 @@ import com.sku.software.moacc.domain.user.exception.UserErrorCode;
 import com.sku.software.moacc.domain.user.mapper.UserMapper;
 import com.sku.software.moacc.domain.user.repository.UserRepository;
 import com.sku.software.moacc.global.exception.CustomException;
+import com.sku.software.moacc.global.infra.redis.auth.RedisAuthCodeStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final RedisAuthCodeStore redisAuthCodeStore;
 
   /**
    * 사용자가 회원가입을 시도하는 서비스 메서드.
@@ -37,26 +39,47 @@ public class UserService {
    */
   @Transactional
   public UserResponse signUp(SignUpRequest request) {
-    log.info("[서비스] 회원가입 시도: username = {}", request.getUsername());
-    if (userRepository.existsByEmail(request.getUsername())) {
-      log.warn("[서비스] 이미 존재하는 사용자: username = {}", request.getUsername());
+    String username = request.getUsername();
+    String email = request.getEmail();
+    log.info("[서비스] 회원가입 시도: username = {}, email = {}", username, email);
+
+    // 1. 이메일 인증 여부 확인
+    if (!redisAuthCodeStore.isEmailVerified(email)) {
+      log.warn("[서비스] 이메일 미인증: email = {}", email);
+      throw new CustomException(UserErrorCode.EMAIL_NOT_VERIFIED);
+    }
+
+    // 2. 중복 사용자 확인 (username)
+    if (userRepository.existsByUsername(username)) {
+      log.warn("[서비스] 이미 존재하는 사용자: username = {}", username);
       throw new CustomException(UserErrorCode.USERNAME_ALREADY_EXISTS);
     }
 
-    // 비밀번호 인코딩
+    // 3. 중복 이메일 확인
+    if (userRepository.existsByEmail(email)) {
+      log.warn("[서비스] 이미 존재하는 이메일: email = {}", email);
+      throw new CustomException(UserErrorCode.EMAIL_ALREADY_EXISTS);
+    }
+
+    // 4. 비밀번호 인코딩
     String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-    // 유저 엔티티 생성
+    // 5. 유저 엔티티 생성
     User user = User.builder()
-        .username(request.getUsername())
+        .username(username)
+        .email(email)
         .password(encodedPassword)
-        .name(request.getName())
+        .nickname(request.getName())
         .authRole(Role.USER)
         .build();
 
-    // 저장 및 로깅
+    // 6. 저장
     User savedUser = userRepository.save(user);
-    log.info("[서비스] 회원가입 성공: username = {}", savedUser.getUsername());
+    log.info("[서비스] 회원가입 성공: username = {}, email = {}", username, email);
+
+    // 7. Redis에서 인증 완료 플래그 삭제
+    redisAuthCodeStore.deleteVerifiedFlag(email);
+
     return userMapper.toUserResponse(savedUser);
   }
 
@@ -110,7 +133,7 @@ public class UserService {
     log.info("[서비스] 사용자 이름 변경 시도: username = {}", user.getUsername());
 
     // 이름 변경
-    user.setName(newName.getNewName());
+    user.setNickname(newName.getNewName());
     log.info("[서비스] 사용자 이름 변경 성공: username = {}, newName = {}", user.getUsername(), newName);
     return userMapper.toUserResponse(user);
   }

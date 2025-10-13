@@ -12,9 +12,14 @@ import lombok.NoArgsConstructor;
 @Schema(title = "SignUpRequest DTO", description = "사용자 회원가입을 위한 데이터 전송")
 public class SignUpRequest {
 
-  @Email(message = "유효한 이메일 형식이 아닙니다.")
-  @Schema(description = "사용자 아이디", example = "jaeyeon20@gmail.com")
+  @NotBlank(message = "아이디는 필수입니다.")
+  @Schema(description = "사용자 아이디", example = "jaeyeon20")
   private String username;
+
+  @NotBlank(message = "이메일은 필수입니다.")
+  @Email(message = "유효한 이메일 형식이 아닙니다.")
+  @Schema(description = "사용자 이메일", example = "jaeyeon20@gmail.com")
+  private String email;
 
   @NotBlank(message = "비밀번호 항목은 필수입니다.")
   @Pattern(

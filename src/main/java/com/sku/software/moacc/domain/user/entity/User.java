@@ -1,13 +1,9 @@
 package com.sku.software.moacc.domain.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sku.software.moacc.domain.user.enums.Language;
-import com.sku.software.moacc.domain.user.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;import com.sku.software.moacc.domain.user.enums.Role;
 import com.sku.software.moacc.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -22,8 +18,13 @@ public class User extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // 로그인 식별자: username으로 변경 (unique)
   @Column(nullable = false, unique = true)
-  private String email; // 이메일
+  private String username; // 로그인 ID
+
+  // 별도의 이메일 필드 추가
+  @Column
+  private String email; // 이메일 (로그인 식별자 아님)
 
   @JsonIgnore
   @Column(nullable = false)

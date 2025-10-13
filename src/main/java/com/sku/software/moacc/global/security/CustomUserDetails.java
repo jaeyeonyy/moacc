@@ -29,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public String getUsername() {
-    return user.getEmail();
+    return user.getUsername();
   }
 
   // 계정의 유효기간이 지났는지(만료됐는지)를 검사

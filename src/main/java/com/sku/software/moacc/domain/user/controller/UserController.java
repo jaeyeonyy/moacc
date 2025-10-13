@@ -39,7 +39,7 @@ public class UserController {
   public ResponseEntity<BaseResponse<Void>> changePassword(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest) {
-    userService.changePassword(userDetails.getUser().getUserId(), passwordUpdateRequest);
+    userService.changePassword(userDetails.getUser().getId(), passwordUpdateRequest);
     return ResponseEntity.ok(BaseResponse.success("비밀번호가 변경되었습니다.", null));
   }
 
@@ -49,7 +49,7 @@ public class UserController {
   public ResponseEntity<BaseResponse<UserResponse>> changeName(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody @Valid NameUpdateRequest nameUpdateRequest) {
-    UserResponse response = userService.changeName(userDetails.getUser().getUserId(),
+    UserResponse response = userService.changeName(userDetails.getUser().getId(),
         nameUpdateRequest);
     return ResponseEntity.ok(BaseResponse.success("사용자 이름이 변경되었습니다.", response));
   }

@@ -9,9 +9,9 @@ public class UserMapper {
 
   public static UserResponse toUserResponse(User user) {
     return UserResponse.builder()
-        .userId(user.getUserId())
+        .userId(user.getId())
         .username(user.getUsername())
-        .name(user.getName())
+        .name(user.getNickname())
         .build();
   }
 

@@ -8,11 +8,14 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum UserErrorCode implements BaseErrorCode {
-  USERNAME_ALREADY_EXISTS("USER_4001", "이미 존재하는 사용자 아이디입니다.", HttpStatus.BAD_REQUEST),
-  PASSWORD_MISMATCH("USER_4002", "비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
-  USER_NOT_FOUND("USER_4041", "존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND);
 
-  private final String code;
-  private final String message;
-  private final HttpStatus status;
+    USER_NOT_FOUND("USER001", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    USERNAME_ALREADY_EXISTS("USER002", "이미 존재하는 아이디입니다.", HttpStatus.CONFLICT),
+    PASSWORD_MISMATCH("USER003", "비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_VERIFIED("USER004", "이메일 인증이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_EXISTS("USER005", "이미 존재하는 이메일입니다.", HttpStatus.CONFLICT);
+
+    private final String code;
+    private final String message;
+    private final HttpStatus status;
 }
