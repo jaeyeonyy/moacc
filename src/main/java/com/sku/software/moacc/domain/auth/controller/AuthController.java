@@ -3,13 +3,14 @@ package com.sku.software.moacc.domain.auth.controller;
 import com.sku.software.moacc.domain.auth.dto.request.EmailSendRequest;
 import com.sku.software.moacc.domain.auth.dto.request.EmailVerificationRequest;
 import com.sku.software.moacc.domain.auth.dto.request.LoginRequest;
+import com.sku.software.moacc.domain.auth.dto.request.NewPasswordRequest;
+import com.sku.software.moacc.domain.auth.dto.request.PasswordResetRequest;
 import com.sku.software.moacc.domain.auth.dto.response.LoginResponse;
 import com.sku.software.moacc.domain.auth.service.AuthService;
 import com.sku.software.moacc.domain.auth.service.MailService;
 import com.sku.software.moacc.domain.user.exception.UserErrorCode;
 import com.sku.software.moacc.domain.user.repository.UserRepository;
 import com.sku.software.moacc.global.exception.CustomException;
-import com.sku.software.moacc.global.infra.redis.auth.RedisAuthCodeStore;
 import com.sku.software.moacc.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +31,6 @@ public class AuthController {
   private final AuthService authService;
   private final MailService mailService;
   private final UserRepository userRepository;
-  private final RedisAuthCodeStore redisAuthCodeStore;
 
   @Operation(summary = "사용자 로그인", description = "사용자 로그인을 위한 API")
   @PostMapping("/login")
@@ -77,5 +77,28 @@ public class AuthController {
     }
 
     return ResponseEntity.ok(BaseResponse.success("인증이 완료되었습니다.", "OK"));
+  }
+
+  @Operation(summary = "비밀번호 재설정 - 인증코드 요청", description = "아이디 및 이메일로 비밀번호 재설정 인증코드를 전송합니다.")
+  @PostMapping("/password/reset/request")
+  public ResponseEntity<BaseResponse<String>> requestPasswordReset(@RequestBody @Valid PasswordResetRequest request) {
+    boolean sent = authService.requestPasswordReset(request);
+    if (!sent) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(BaseResponse.error(400, "비밀번호 재설정 메일 발송에 실패했습니다."));
+    }
+    return ResponseEntity.ok(BaseResponse.success("비밀번호 재설정 인증코드가 전송되었습니다.", "OK"));
+  }
+
+  @Operation(summary = "비밀번호 재설정 - 코드 확인 및 비밀번호 변경", description = "인증코드 확인 후 새 비밀번호로 변경합니다.")
+  @PostMapping("/password/reset/confirm")
+  public ResponseEntity<BaseResponse<String>> confirmPasswordReset(@RequestBody @Valid NewPasswordRequest request) {
+    try {
+      authService.resetPassword(request);
+      return ResponseEntity.ok(BaseResponse.success("비밀번호가 성공적으로 변경되었습니다.", "OK"));
+    } catch (CustomException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(BaseResponse.error(400, e.getMessage()));
+    }
   }
 }

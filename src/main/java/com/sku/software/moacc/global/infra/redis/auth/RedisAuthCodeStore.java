@@ -15,8 +15,10 @@ public class RedisAuthCodeStore {
     private final StringRedisTemplate template;
     private static final String AUTH_EMAIL_PREFIX = "auth:email:";
     private static final String VERIFIED_SUFFIX = ":verified";
+    private static final String PASSWORD_RESET_SUFFIX = ":password-reset";
     private static final Duration AUTH_CODE_TTL = Duration.ofMinutes(5);    // 인증코드 TTL: 5분
     private static final Duration VERIFIED_TTL = Duration.ofMinutes(30);    // 인증완료 TTL: 30분
+    private static final Duration PASSWORD_RESET_TTL = Duration.ofMinutes(10); // 비밀번호 재설정 TTL: 10분
 
     private String buildKey(String key) {
         return AUTH_EMAIL_PREFIX + key;
@@ -24,6 +26,10 @@ public class RedisAuthCodeStore {
 
     private String buildVerifiedKey(String email) {
         return buildKey(email) + VERIFIED_SUFFIX;
+    }
+
+    private String buildPasswordResetKey(String email) {
+        return buildKey(email) + PASSWORD_RESET_SUFFIX;
     }
 
     // key로 value를 가져오는 메소드
@@ -74,5 +80,27 @@ public class RedisAuthCodeStore {
     public boolean isEmailVerified(String email) {
         String verified = getVerifiedData(email);
         return "true".equals(verified);
+    }
+
+    // 비밀번호 재설정 인증 코드 저장
+    public void createPasswordResetCode(String email, String code) {
+        String key = buildPasswordResetKey(email);
+        if (Boolean.TRUE.equals(template.hasKey(key))) {
+            template.delete(key);
+        }
+        template.opsForValue().set(key, code, PASSWORD_RESET_TTL);
+    }
+
+    // 비밀번호 재설정 인증 코드 검증
+    public boolean verifyPasswordResetCode(String email, String code) {
+        String key = buildPasswordResetKey(email);
+        String stored = template.opsForValue().get(key);
+        if (stored == null) return false;
+        return stored.equals(code);
+    }
+
+    // 비밀번호 재설정 인증 코드 삭제
+    public void deletePasswordResetCode(String email) {
+        template.delete(buildPasswordResetKey(email));
     }
 }

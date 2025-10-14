@@ -4,6 +4,7 @@ import com.sku.software.moacc.global.infra.redis.auth.RedisAuthCodeStore;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MailService {
     private final JavaMailSender javaMailSender;
     private final RedisAuthCodeStore redisAuthCodeStore;
@@ -91,6 +93,44 @@ public class MailService {
         return isValid;
     }
 
+    // ---------- Password reset methods ----------
+    private static final String PASSWORD_RESET_SUBJECT = "비밀번호 재설정 인증 코드";
 
+    private MimeMessage createPasswordResetMail(String email, String authCode) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        message.setFrom(senderEmail);
+        message.setRecipients(MimeMessage.RecipientType.TO, email);
+        message.setSubject(PASSWORD_RESET_SUBJECT);
+        String body = "";
+        body += "<h3>비밀번호 재설정을 위한 인증 코드입니다.</h3>";
+        body += "<h1>" + authCode + "</h1>";
+        body += "<p>이 코드는 10분 동안 유효합니다.</p>";
+        message.setText(body, "UTF-8", "html");
+        return message;
+    }
+
+    public boolean sendPasswordResetEmail(String email) {
+        try {
+            String authCode = createdCertifyNum();
+            MimeMessage message = createPasswordResetMail(email, authCode);
+
+            // 인증 코드 저장 (10분)
+            redisAuthCodeStore.createPasswordResetCode(email, authCode);
+
+            javaMailSender.send(message);
+            return true;
+        } catch (MessagingException | MailException e) {
+            log.error("비밀번호 재설정 메일 발송 실패: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean verifyPasswordResetCode(String email, String code) {
+        return redisAuthCodeStore.verifyPasswordResetCode(email, code);
+    }
+
+    public void deletePasswordResetCode(String email) {
+        redisAuthCodeStore.deletePasswordResetCode(email);
+    }
 
 }

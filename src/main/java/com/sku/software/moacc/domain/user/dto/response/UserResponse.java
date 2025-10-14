@@ -15,7 +15,9 @@ public class UserResponse {
   @Schema(description = "사용자 아이디", example = "jaeyeon20@gmail.com")
   private String username;
 
+  @Schema(description = "사용자 이메일", example = "jaeyeon20@gmail.com")
+  private String email;
+
   @Schema(description = "사용자 이름", example = "재연")
   private String name;
-
 }

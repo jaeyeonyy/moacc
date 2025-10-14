@@ -1,6 +1,8 @@
 package com.sku.software.moacc.domain.auth.service;
 
 import com.sku.software.moacc.domain.auth.dto.request.LoginRequest;
+import com.sku.software.moacc.domain.auth.dto.request.NewPasswordRequest;
+import com.sku.software.moacc.domain.auth.dto.request.PasswordResetRequest;
 import com.sku.software.moacc.domain.auth.dto.response.LoginResponse;
 import com.sku.software.moacc.domain.auth.mapper.AuthMapper;
 import com.sku.software.moacc.domain.user.entity.User;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,8 @@ public class AuthService {
   private final JwtProvider jwtProvider;
   private final UserRepository userRepository;
   private final AuthMapper authMapper;
+  private final MailService mailService;
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * 사용자 로그인 서비스 메서드.
@@ -65,6 +70,53 @@ public class AuthService {
 
     // 로그인 응답 변환
     return authMapper.toLoginResponse(user, accessToken, expirationTime);
+  }
 
+  /**
+   * 비밀번호 재설정 인증코드 요청
+   */
+  public boolean requestPasswordReset(PasswordResetRequest request) {
+    // 1. 사용자 존재 여부 확인
+    User user = userRepository.findByUsername(request.getUsername())
+        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+    // 2. 이메일 일치 확인
+    if (user.getEmail() == null || !user.getEmail().equals(request.getEmail())) {
+      throw new CustomException(UserErrorCode.EMAIL_MISMATCH);
+    }
+
+    // 3. 메일 발송(레디스에 코드 저장 포함)
+    return mailService.sendPasswordResetEmail(request.getEmail());
+  }
+
+  /**
+   * 인증코드 확인 및 새 비밀번호 설정
+   */
+  @Transactional
+  public void resetPassword(NewPasswordRequest request) {
+    // 1. 사용자 존재 여부 확인
+    User user = userRepository.findByUsername(request.getUsername())
+        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+    // 2. 이메일 일치 확인
+    if (user.getEmail() == null || !user.getEmail().equals(request.getEmail())) {
+      throw new CustomException(UserErrorCode.EMAIL_MISMATCH);
+    }
+
+    // 3. 인증 코드 검증
+    boolean valid = mailService.verifyPasswordResetCode(request.getEmail(), request.getCode());
+    if (!valid) {
+      throw new CustomException(UserErrorCode.INVALID_RESET_CODE);
+    }
+
+    // 4. 비밀번호 변경
+    String encoded = passwordEncoder.encode(request.getNewPassword());
+    user.setPasswordHash(encoded);
+    userRepository.save(user);
+
+    // 5. 레디스에 남아있는 재설정 코드 삭제
+    mailService.deletePasswordResetCode(request.getEmail());
+
+    log.info("비밀번호 재설정 완료: username={}", user.getUsername());
   }
 }

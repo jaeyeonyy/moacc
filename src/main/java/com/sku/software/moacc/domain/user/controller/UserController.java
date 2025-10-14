@@ -54,4 +54,12 @@ public class UserController {
     return ResponseEntity.ok(BaseResponse.success("사용자 이름이 변경되었습니다.", response));
   }
 
+  @Operation(summary = "내 정보 조회", description = "로그인한 사용자의 프로필을 반환합니다.")
+  @GetMapping("/me")
+  public ResponseEntity<BaseResponse<UserResponse>> getMyProfile(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserResponse response = userService.getMyProfile(userDetails.getUser().getId());
+    return ResponseEntity.ok(BaseResponse.success("내 정보 조회에 성공했습니다.", response));
+  }
+
 }

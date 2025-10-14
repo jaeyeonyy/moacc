@@ -68,8 +68,8 @@ public class UserService {
     User user = User.builder()
         .username(username)
         .email(email)
-        .password(encodedPassword)
-        .nickname(request.getName())
+        .passwordHash(encodedPassword)
+        .name(request.getName())
         .authRole(Role.USER)
         .build();
 
@@ -101,7 +101,7 @@ public class UserService {
     log.info("[서비스] 비밀번호 변경 시도: username = {}", user.getUsername());
 
     // 현재 비밀번호와 입력된 비밀번호 비교
-    if (!passwordEncoder.matches(passwordUpdateRequest.getCurrentPassword(), user.getPassword())) {
+    if (!passwordEncoder.matches(passwordUpdateRequest.getCurrentPassword(), user.getPasswordHash())) {
       log.warn("[서비스] 비밀번호가 일치하지 않습니다.: username = {}", user.getUsername());
       throw new CustomException(UserErrorCode.PASSWORD_MISMATCH);
     }
@@ -110,7 +110,7 @@ public class UserService {
     String encodedPassword = passwordEncoder.encode(passwordUpdateRequest.getNewPassword());
 
     // 비밀번호 변경
-    user.setPassword(encodedPassword);
+    user.setPasswordHash(encodedPassword);
     log.info("[서비스] 비밀번호 변경 성공: username = {}", user.getUsername());
 
   }
@@ -133,8 +133,18 @@ public class UserService {
     log.info("[서비스] 사용자 이름 변경 시도: username = {}", user.getUsername());
 
     // 이름 변경
-    user.setNickname(newName.getNewName());
+    user.setName(newName.getNewName());
     log.info("[서비스] 사용자 이름 변경 성공: username = {}, newName = {}", user.getUsername(), newName);
     return userMapper.toUserResponse(user);
+  }
+
+  /**
+   * 현재 로그인한 사용자의 프로필 정보를 반환합니다.
+   */
+  @Transactional(readOnly = true)
+  public UserResponse getMyProfile(Long userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    return UserMapper.toUserResponse(user);
   }
 }

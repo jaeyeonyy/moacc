@@ -45,7 +45,7 @@ public class SecurityConfig {
                     .permitAll()
                     // 로그인 필요
                     .requestMatchers("/api/v1/users", "/api/v1/myPages", "/api/v1/food/*/reviews",
-                        "/api/v1/likes/foods/**")
+                        "/api/v1/likes/foods/**", "/api/users/me")
                     .authenticated()
                     // 그 외 모든 요청은 모두 인증 필요
                     .anyRequest()

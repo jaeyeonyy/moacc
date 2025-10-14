@@ -1,6 +1,7 @@
 package com.sku.software.moacc.domain.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;import com.sku.software.moacc.domain.user.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sku.software.moacc.domain.user.enums.Role;
 import com.sku.software.moacc.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,15 +24,15 @@ public class User extends BaseTimeEntity {
   private String username; // 로그인 ID
 
   // 별도의 이메일 필드 추가
-  @Column
+  @Column(unique = true)
   private String email; // 이메일 (로그인 식별자 아님)
 
   @JsonIgnore
-  @Column(nullable = false)
-  private String password;
+  @Column(name = "password_hash", nullable = false)
+  private String passwordHash;
 
   @Column(nullable = false)
-  private String nickname; // 닉네임
+  private String name; // 닉네임
 
   @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
