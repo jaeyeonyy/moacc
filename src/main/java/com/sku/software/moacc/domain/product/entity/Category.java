@@ -19,13 +19,10 @@ public class Category {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    private String code;
+
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private String displayName;
 
-    public Category(String name, String displayName) {
-        this.name = name;
-        this.displayName = displayName;
-    }
 }

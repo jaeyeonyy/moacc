@@ -1,5 +1,6 @@
 package com.sku.software.moacc.domain.product.entity;
 
+import com.sku.software.moacc.global.common.BaseTimeEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
@@ -24,27 +25,26 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Table(name = "products")
-public class Product {
+public class Product extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
-    @Column(nullable = false)
+    @Column(name = "image_url", nullable = false, length = 2048)
+    private String imageUrl;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
-
-    @Column(nullable = false)
-    private Integer price;
-
-    @Column(nullable = false)
-    private Integer quantity;
 }
