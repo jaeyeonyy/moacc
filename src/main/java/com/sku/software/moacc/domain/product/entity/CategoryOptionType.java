@@ -1,15 +1,8 @@
 package com.sku.software.moacc.domain.product.entity;
 
 import com.sku.software.moacc.global.common.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "category_option_types")
+@Table(
+        name = "category_option_types",
+        uniqueConstraints = @UniqueConstraint(name = "uk_category_code", columnNames = {"category_id", "code"})
+)
 public class CategoryOptionType extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +35,11 @@ public class CategoryOptionType extends BaseTimeEntity {
 
     @Builder.Default
     private Boolean active = true;
+
+    // 업데이트용 메서드
+    public void update(String code, String name, Boolean active) {
+        if (code != null) this.code = code;
+        if (name != null) this.name = name;
+        if (active != null) this.active = active;
+    }
 }

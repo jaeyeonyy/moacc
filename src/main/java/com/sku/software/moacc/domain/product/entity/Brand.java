@@ -25,4 +25,12 @@ public class Brand extends BaseTimeEntity {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }

@@ -43,4 +43,12 @@ public class ProductSku {
   @Builder.Default
   @Column(nullable = false)
   private Boolean active=Boolean.TRUE;
+
+  // 업데이트용 메서드
+  public void update(Integer price, Integer stockQty, Integer safetyStockQty, Boolean active) {
+    if (price != null) this.price = price;
+    if (stockQty != null) this.stockQty = stockQty;
+    if (safetyStockQty != null) this.safetyStockQty = safetyStockQty;
+    if (active != null) this.active = active;
+  }
 }

@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/categories/options")
 @RequiredArgsConstructor
 public class OptionController {
-
+    // 기존 복잡한 기능은 분리하여 각 전용 컨트롤러에서 구현합니다.
 }

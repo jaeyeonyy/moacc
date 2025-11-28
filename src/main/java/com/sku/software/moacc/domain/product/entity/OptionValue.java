@@ -10,7 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import jakarta.persistence.UniqueConstraint;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +22,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "option_values")
+@Table(name = "option_values", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_option_type_value", columnNames = {"category_option_type_id", "value"}),
+        @UniqueConstraint(name = "uk_option_type_code", columnNames = {"category_option_type_id", "code"})
+})
 public class OptionValue extends BaseTimeEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +38,14 @@ public class OptionValue extends BaseTimeEntity {
   @Column(nullable = false)
   private String value;
 
+  @Column(nullable = false)
+  private String code;
+
   @Builder.Default
   private Boolean active = true;
+
+  public void setActive(Boolean active) {
+      this.active = active;
+  }
 
 }
