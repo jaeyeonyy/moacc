@@ -8,11 +8,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,6 +47,10 @@ public class ProductSku {
   @Builder.Default
   @Column(nullable = false)
   private Boolean active=Boolean.TRUE;
+
+  @OneToMany(mappedBy = "sku", fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<SkuOptionValue> skuOptionValues = new ArrayList<>();
 
   // 업데이트용 메서드
   public void update(Integer price, Integer stockQty, Integer safetyStockQty, Boolean active) {

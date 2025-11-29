@@ -61,10 +61,9 @@ public class CartController {
       @PathVariable Long cartItemId,
       @RequestBody QuantityUpdateRequest request) {
 
-    // TODO: 보안: cartItemId가 현재 userDetails.getUser().getId()의 장바구니에 속하는지 검증하는 로직이 Service에 필요합니다.
-
+    Long userId = userDetails.getUser().getId();
     CartItemResponse updatedItem = cartService.updateItemQuantity(
-        cartItemId, request.getQuantity());
+        userId, cartItemId, request.getQuantity());
 
     return ResponseEntity.ok(BaseResponse.success("수량이 변경되었습니다.", updatedItem));
   }
@@ -78,8 +77,8 @@ public class CartController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable Long cartItemId) {
 
-    // TODO: 보안 검증 로직 필수
-    cartService.removeItem(cartItemId);
+    Long userId = userDetails.getUser().getId();
+    cartService.removeItem(userId, cartItemId);
     return ResponseEntity.ok(BaseResponse.success("장바구니 항목이 삭제되었습니다.", null));
   }
 

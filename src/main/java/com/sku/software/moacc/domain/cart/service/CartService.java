@@ -40,7 +40,6 @@ public class CartService {
     Cart cart = getOrCreateCart(userId);
 
     // 2. 상품 SKU 찾기 (유효성 검사)
-    // 실제 구현 시, DB에서 ProductSku를 찾아 재고 확인 및 유효성 검사 로직이 필요합니다.
     ProductSku productSku = productSkuRepository.findById(productSkuId)
         .orElseThrow(() -> new EntityNotFoundException("상품 옵션을 찾을 수 없습니다."));
 
@@ -68,7 +67,7 @@ public class CartService {
     return CartItemResponse.fromEntity(savedItem);
   }
 
-  // 장바구니를 가져오거나 없으면 새로 생성하는 헬퍼 메서드
+  // 장바구니를 가져오거나 없으면 새로 생성하는 메서드
   private Cart getOrCreateCart(Long userId) {
     return cartRepository.findByUserId(userId)
         .orElseGet(() -> {
@@ -76,7 +75,7 @@ public class CartService {
           User user = userRepository.findById(userId)
               .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-          Cart newCart = Cart.newOf(user); // 생성자 또는 빌더 사용
+          Cart newCart = Cart.newOf(user);
           return cartRepository.save(newCart);
         });
   }
@@ -88,8 +87,14 @@ public class CartService {
    */
   @Transactional(readOnly = true)
   public List<CartItemResponse> getCartItems(Long userId) {
-    Cart cart = cartRepository.findByUserId(userId)
-        .orElseThrow(() -> new EntityNotFoundException("장바구니를 찾을 수 없습니다."));
+    Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
+
+    if (cartOptional.isEmpty()) {
+      // 장바구니가 없으면 빈 리스트 반환 (새 장바구니 생성은 readOnly 트랜잭션에서 불가능하므로)
+      return List.of();
+    }
+
+    Cart cart = cartOptional.get();
 
     // Cart 엔티티의 List<CartItem>을 사용하거나, Repository를 이용해 직접 조회합니다.
     List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
@@ -104,19 +109,24 @@ public class CartService {
 
   /**
    * 장바구니 항목의 수량을 수정합니다.
+   * @param userId 현재 로그인한 사용자 ID
    * @param cartItemId 수정할 장바구니 항목 ID
    * @param newQuantity 새로운 수량
    * @return 수정된 CartItem DTO
    */
-  public CartItemResponse updateItemQuantity(Long cartItemId, int newQuantity) {
+  public CartItemResponse updateItemQuantity(Long userId, Long cartItemId, int newQuantity) {
     if (newQuantity <= 0) {
       // 수량이 0이거나 음수이면 삭제 로직을 호출하거나 예외 처리
-      removeItem(cartItemId);
-      return null; // 또는 삭제되었음을 나타내는 DTO 반환
+        throw new IllegalArgumentException("상품 수량은 1개 이상이어야 합니다.");
     }
 
     CartItem item = cartItemRepository.findById(cartItemId)
         .orElseThrow(() -> new EntityNotFoundException("장바구니 항목을 찾을 수 없습니다."));
+
+    // 해당 항목이 현재 로그인한 사용자의 장바구니에 속하는지 확인
+    if (!item.getCart().getUser().getId().equals(userId)) {
+      throw new IllegalArgumentException("해당 장바구니 항목에 대한 권한이 없습니다.");
+    }
 
     // TODO: 재고 확인 등 비즈니스 로직 추가
 
@@ -128,11 +138,20 @@ public class CartService {
 
   /**
    * 장바구니에서 특정 항목을 삭제합니다.
+   * @param userId 현재 로그인한 사용자 ID
    * @param cartItemId 삭제할 장바구니 항목 ID
    */
-  public void removeItem(Long cartItemId) {
-    // 실제로는 삭제 전 해당 항목이 현재 로그인한 사용자의 것인지 확인하는 로직이 추가되어야 합니다.
-    cartItemRepository.deleteById(cartItemId);
+  public void removeItem(Long userId, Long cartItemId) {
+    // 장바구니 항목 조회
+    CartItem cartItem = cartItemRepository.findById(cartItemId)
+        .orElseThrow(() -> new EntityNotFoundException("장바구니 항목을 찾을 수 없습니다."));
+
+    // 해당 항목이 현재 로그인한 사용자의 장바구니에 속하는지 확인
+    if (!cartItem.getCart().getUser().getId().equals(userId)) {
+      throw new IllegalArgumentException("해당 장바구니 항목에 대한 권한이 없습니다.");
+    }
+
+    cartItemRepository.delete(cartItem);
   }
 
   /**
