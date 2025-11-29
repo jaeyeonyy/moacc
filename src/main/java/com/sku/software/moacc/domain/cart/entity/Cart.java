@@ -29,6 +29,12 @@ public class Cart extends BaseTimeEntity {
     @Builder.Default
     private List<CartItem> cartItems = new ArrayList<>();
 
+    public static Cart newOf(User user) {
+        return Cart.builder()
+                .user(user)
+                .build();
+    }
+
     // 편의 메서드
     public void addCartItem(CartItem cartItem) {
         this.cartItems.add(cartItem);
