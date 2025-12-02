@@ -24,6 +24,9 @@ public class Order extends BaseTimeEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "toss_order_id", unique = true)
+    private String tossOrderId; // 토스페이먼츠용 고유 주문 ID
+
     // OrderStatus Enum을 문자열(String)로 저장
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
@@ -46,7 +49,7 @@ public class Order extends BaseTimeEntity {
     // 양방향 연관관계 편의 메서드
     public void setPayment(Payment payment) {
         this.payment = payment;
-        if (payment != null) {
+        if (payment != null && payment.getOrder() != this) {
             payment.setOrder(this);
         }
     }

@@ -10,8 +10,8 @@ public class PaymentConfirmRequest {
     private String paymentKey;
 
     // 상점에서 보낸 주문 ID
-    private Long orderId;
+    private String tossOrderId;
 
     // 결제 요청 금액
-    private int amount;
+    private Integer amount;
 }

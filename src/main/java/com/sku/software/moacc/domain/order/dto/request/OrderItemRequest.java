@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderItemRequest {
-    private Long productId;
+    private Long skuId;
     private int quantity;
     private int price; // 개당 가격
     private String productName;

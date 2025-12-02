@@ -18,8 +18,8 @@ public class OrderItem extends BaseTimeEntity {
     @Column(name = "order_item_id")
     private Long id; // Auto-Increment (Long)
 
-    @Column(name = "product_id", nullable = false)
-    private Long productId;
+    @Column(name = "sku_id", nullable = false)
+    private Long skuId;
 
     private String productName;
 

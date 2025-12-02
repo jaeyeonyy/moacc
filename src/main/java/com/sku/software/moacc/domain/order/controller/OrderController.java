@@ -6,15 +6,19 @@ import com.sku.software.moacc.domain.order.dto.request.OrderCreateRequest;
 import com.sku.software.moacc.domain.order.dto.request.PaymentConfirmRequest;
 import com.sku.software.moacc.domain.order.dto.response.OrderCreateResponse;
 import com.sku.software.moacc.domain.order.dto.response.PaymentConfirmResponse;
+import com.sku.software.moacc.domain.order.dto.response.OrderResponse;
 import com.sku.software.moacc.domain.order.service.OrderService;
 import com.sku.software.moacc.global.response.BaseResponse;
 import com.sku.software.moacc.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,5 +53,16 @@ public class OrderController {
         PaymentConfirmResponse response = orderService.confirmPayment(userId, request);
 
         return BaseResponse.success("결제가 성공적으로 완료되었습니다.", response);
+    }
+
+    /**
+     * [3] 내 주문 목록 조회 API
+     */
+    @GetMapping("/me")
+    public BaseResponse<List<OrderResponse>> getMyOrders(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        List<OrderResponse> response = orderService.getMyOrders(userId);
+        return BaseResponse.success("주문 목록을 성공적으로 조회했습니다.", response);
     }
 }

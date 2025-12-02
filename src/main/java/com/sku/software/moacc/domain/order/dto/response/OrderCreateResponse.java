@@ -10,8 +10,16 @@ public class OrderCreateResponse {
     // 상점의 주문 ID (토스 paymentWidget 호출 시 orderId로 사용됨)
     private Long orderId;
 
+    private String tossOrderId;
+
     // 결제 위젯에 표시될 주문명
     private String orderName;
+
+    // 고객명
+    private String customerName;
+
+    // 고객 이메일
+    private String customerEmail;
 
     // 결제 요청 금액
     private int amount;

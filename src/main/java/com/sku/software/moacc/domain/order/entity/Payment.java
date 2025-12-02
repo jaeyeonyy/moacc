@@ -37,10 +37,15 @@ public class Payment extends BaseTimeEntity {
     @JoinColumn(name = "order_id", unique = true, nullable = false)
     private Order order;
 
+    // 생성자 추가 - paymentKey 설정용
+    public Payment(String paymentKey) {
+        this.paymentKey = paymentKey;
+    }
+
     // 양방향 연관관계 편의 메서드
     public void setOrder(Order order) {
         this.order = order;
-        if (order != null) {
+        if (order != null && order.getPayment() != this) {
             order.setPayment(this);
         }
     }
